@@ -1,0 +1,26 @@
+responses:
+    - response:
+        type: ACCESS_DENIED
+        headers: {"gatewayresponse.header.Access-Control-Allow-Origin":"'*'", "gatewayresponse.header.Access-Control-Allow-Headers":"'*'"}
+        bodyMappingTemplate: { "contentType": "application/json" , "content": '{"message":"$context.authorizer.messageString"}'}
+        statusCode: 403
+    - response:
+        type: EXPIRED_TOKEN
+        headers: {"gatewayresponse.header.Access-Control-Allow-Origin":"'*'", "gatewayresponse.header.Access-Control-Allow-Headers":"'*'"}
+        bodyMappingTemplate: { "contentType": "application/json" , "content": '{"message":"$context.authorizer.messageString"}'}
+        statusCode: 403
+    - response:
+        type: RESOURCE_NOT_FOUND
+        headers: {"gatewayresponse.header.Access-Control-Allow-Origin":"'*'", "gatewayresponse.header.Access-Control-Allow-Headers":"'*'"}
+        bodyMappingTemplate: { "contentType": "application/json" , "content": '{"message":"Not found"}'}
+        statusCode: 404
+    - response:
+        type: DEFAULT_4XX
+        headers: {"gatewayresponse.header.Access-Control-Allow-Origin":"'*'", "gatewayresponse.header.Access-Control-Allow-Headers":"'*'"}
+        bodyMappingTemplate: { "contentType": "application/json" , "content": '{"message":"Forbidden"}'}
+        statusCode: 403          
+    - response:
+        type: DEFAULT_5XX
+        headers: {"gatewayresponse.header.Access-Control-Allow-Origin":"'*'", "gatewayresponse.header.Access-Control-Allow-Headers":"'*'"}
+        bodyMappingTemplate: { "contentType": "application/json" , "content": '{"message":"Oops! Something went wrong"}'}
+        statusCode: 500

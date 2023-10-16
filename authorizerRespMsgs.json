@@ -1,0 +1,5 @@
+{
+   "TokenExpiredError" : "Token expired",
+   "JsonWebTokenError": "Invalid token",
+   "Unauthorized": "Unauthorized"
+}

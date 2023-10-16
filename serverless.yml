@@ -1,0 +1,41 @@
+# Service
+service: log-service
+# Project Directory
+projectDir: ./
+# Framework
+frameworkVersion: ${file(./serverless.common.yml):frameworkVersion}
+# Provider
+provider: ${file(./serverless.common.yml):provider}
+# Webpack config file path and force exclude some packages getting bundled
+custom: ${file(./serverless.common.yml):custom}
+# Plugins
+plugins: ${file(./serverless.common.yml):plugins}
+# Resources
+resources: ${file(./serverless.common.yml):resources}
+# Functions
+functions:
+  # 404 function
+  notfound:
+    handler: src/404.notfound
+    events:
+      - http:
+          path: /{any+}
+          method: any
+  # messages CURD
+  log:
+    name: ${self:custom.functionPrefix}log
+    handler: src/route.handler
+    timeout: 30
+    layers:
+      - ${cf:fr-mongodb-layer-${self:provider.stage}.FrMongodbLayerExport}
+    events:
+      # create/log
+      - http:
+          path: /update-log
+          method: POST
+          cors: ${file(./serverless.common.yml):cors}
+          authorizer: ${file(./serverless.common.yml):defaultAuthorizer}
+          localAuthorizer:
+            name: "localAuthorizer"            
+
+            

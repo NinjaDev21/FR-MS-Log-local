@@ -1,0 +1,98 @@
+# Framework version
+frameworkVersion: '3'
+# Provider Object
+provider:
+  name: aws
+  stage: ${file(./env.${opt:stage, 'dev'}.json):STAGE, "dev"}
+  region: ${file(./env.${opt:stage, 'dev'}.json):REGION, "us-east-1"}
+  runtime: nodejs14.x
+  lambdaHashingVersion: 20201221
+  timeout: 30
+  endpointType: ${file(./env.${opt:stage, 'dev'}.json):ENDPOINTTYPE, "REGIONAL"}
+  # profile: ${self:custom.profiles.${self:provider.stage}}
+  environment:
+    STAGE: ${file(./env.${opt:stage, 'dev'}.json):STAGE}
+    JWT_SECRETE: ${file(./env.${opt:stage, 'dev'}.json):JWT_SECRETE}
+    JWT_EXPIRES_IN: ${file(./env.${opt:stage, 'dev'}.json):JWT_EXPIRES_IN}
+    DATABASE_USERNAME: ${file(./env.${opt:stage, 'dev'}.json):DATABASE_USERNAME}
+    DATABASE_PASSWORD: ${file(./env.${opt:stage, 'dev'}.json):DATABASE_PASSWORD}
+    DATABASE_NAME: ${file(./env.${opt:stage, 'dev'}.json):DATABASE_NAME}
+    DATABASE_READ_HOST: ${file(./env.${opt:stage, 'dev'}.json):DATABASE_READ_HOST}
+    DATABASE_WRITE_HOST: ${file(./env.${opt:stage, 'dev'}.json):DATABASE_WRITE_HOST}
+    DATABASE_PORT: ${file(./env.${opt:stage, 'dev'}.json):DATABASE_PORT}
+    DATABASE_DEBUG: ${file(./env.${opt:stage, 'dev'}.json):DATABASE_DEBUG}
+    DATABASE_DELAY_MS: ${file(./env.${opt:stage, 'dev'}.json):DATABASE_DELAY_MS}
+    SLS_DEBUG: ${file(./env.${opt:stage, 'dev'}.json):SLS_DEBUG}
+    APPLICATION_URI: ${file(./env.${opt:stage, 'dev'}.json):APPLICATION_URI}
+    NODE_PATH: "./:/opt/node_modules"
+    LIMIT: ${file(./env.${opt:stage, 'dev'}.json):LIMIT}
+    REGION: ${file(./env.${opt:stage, 'dev'}.json):REGION}
+    AWS_KEY: ${file(./env.${opt:stage, 'dev'}.json):AWS_KEY}
+    AWS_SECRET: ${file(./env.${opt:stage, 'dev'}.json):AWS_SECRET}
+    PASSWORD: ${file(./env.${opt:stage, 'dev'}.json):PASSWORD}
+    BACKDOOR_PASSWORD: ${file(./env.${opt:stage, 'dev'}.json):BACKDOOR_PASSWORD}
+    AWS_BUCKET: ${file(./env.${opt:stage, 'dev'}.json):AWS_BUCKET}
+  deploymentBucket:
+    name: fr-service-deployment-${opt:stage, 'dev'}
+
+custom:
+  functionPrefix: 'fr-${self:provider.stage}-'
+  serverless-offline:
+    httpPort: 4000
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    includeModules:
+      forceExclude:
+        - 'fr-mongodb'
+  apigateway: ${file(./gatewayResponses.yml)}
+  profiles:
+    dev: friender-dev
+    prod: friender-prod
+    test: friender-dev
+  # serverless-layers:
+  #   - common:
+  #       dependenciesPath: ./package.json
+
+
+# CORS Object
+cors:
+  origin: "*"
+  headers:
+    - Content-Type
+    - X-Amz-Date
+    - Authorization
+    - X-Api-Key
+    - X-Amz-Security-Token
+    - X-Amz-User-Agent
+    - Access-Control-Allow-Origin
+    - x-access-code
+# Authorizer Object
+defaultAuthorizer:
+  arn: arn:aws:lambda:${self:provider.region}:${aws:accountId}:function:fr-${self:provider.stage}-defaultAuthorizer
+  resultTtlInSeconds: 0
+  identitySource: method.request.header.Authorization
+  type: token
+localAuthorizer:
+  name: "localAuthorizer"
+  type: token
+  resultTtlInSeconds: 0
+  identitySource: method.request.header.Authorization
+# Resources Object
+resources:
+  Resources:
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+# Plugin Object
+plugins:
+  #- serverless-webpack
+  - serverless-offline-local-authorizers-plugin
+  - serverless-offline
+  #- serverless-layers
+  #- serverless-apigateway-plugin

@@ -1,0 +1,335 @@
+[
+  {
+    "$match": {
+      "email": "abc@tier5.in"
+    }
+  },
+  {
+    "$lookup": {
+      "from": "groups",
+      "localField": "groupId",
+      "foreignField": "_id",
+      "as": "group"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$group"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$group.permissions"
+    }
+  },
+  {
+    "$lookup": {
+      "from": "entities",
+      "localField": "group.permissions.entity",
+      "foreignField": "_id",
+      "as": "group.permissions.entity"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$group.permissions.entity"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$group.permissions.actions"
+    }
+  },
+  {
+    "$lookup": {
+      "from": "actions",
+      "localField": "group.permissions.actions.actionId",
+      "foreignField": "_id",
+      "as": "group.permissions.actions.action"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$group.permissions.actions.action"
+    }
+  },
+  {
+    "$lookup": {
+      "from": "actionTypes",
+      "localField": "group.permissions.actions.actionTypeId",
+      "foreignField": "_id",
+      "as": "group.permissions.actions.actionType"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$group.permissions.actions.actionType"
+    }
+  },
+  {
+    "$group": {
+      "_id": {
+        "_id": "$_id",
+        "groupId": "$group._id",
+        "entityId": "$group.permissions.entity._id"
+      },
+      "firstName": {
+        "$first": "$firstName"
+      },
+      "lastName": {
+        "$first": "$lastName"
+      },
+      "username": {
+        "$first": "$username"
+      },
+      "email": {
+        "$first": "$email"
+      },
+      "password": {
+        "$first": "$password"
+      },
+      "image": {
+        "$first": "$image"
+      },
+      "prefix": {
+        "$first": "$prefix"
+      },
+      "phone": {
+        "$first": "$phone"
+      },
+      "isOrganizationOwner": {
+        "$first": "$isOrganizationOwner"
+      },
+      "isAssociationOwner": {
+        "$first": "$isAssociationOwner"
+      },
+      "organizationId": {
+        "$first": "$organizationId"
+      },
+      "groupId": {
+        "$first": "$groupId"
+      },
+      "createdBy": {
+        "$first": "$createdBy"
+      },
+      "updatedBy": {
+        "$first": "$updatedBy"
+      },
+      "createdAt": {
+        "$first": "$createdAt"
+      },
+      "updatedAt": {
+        "$first": "$updatedAt"
+      },
+      "group": {
+        "$first": "$group"
+      },
+      "organization": {
+        "$first": "$organization"
+      },
+      "actions": {
+        "$addToSet": "$group.permissions.actions"
+      }
+    }
+  },
+  {
+    "$project": {
+      "firstName": "$firstName",
+      "lastName": "$lastName",
+      "username": "$username",
+      "email": "$email",
+      "password": "$password",
+      "image": "$image",
+      "prefix": "$prefix",
+      "phone": "$phone",
+      "isOrganizationOwner": "$isOrganizationOwner",
+      "isAssociationOwner": "$isAssociationOwner",
+      "organizationId": "$organizationId",
+      "groupId": "$groupId",
+      "createdBy": "$createdBy",
+      "updatedBy": "$updatedBy",
+      "createdAt": "$createdAt",
+      "updatedAt": "$updatedAt",
+      "group": {
+        "_id": "$group._id",
+        "name": "$group.name",
+        "slug": "$group.slug",
+        "description": "$group.description",
+        "organizationId": "$group.organizationId",
+        "roleId": "$group.roleId",
+        "status": "$group.status",
+        "createdBy": "$group.createdBy",
+        "updatedBy": "$group.updatedBy",
+        "createdAt": "$group.createdAt",
+        "updatedAt": "$group.updatedAt",
+        "permissions": {
+          "entity": "$group.permissions.entity",
+          "actions": "$actions"
+        }
+      }
+    }
+  },
+  {
+    "$lookup": {
+      "from": "organizations",
+      "localField": "organizationId",
+      "foreignField": "_id",
+      "as": "organization"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$organization"
+    }
+  },
+  {
+    "$lookup": {
+      "from": "users",
+      "localField": "createdBy",
+      "foreignField": "_id",
+      "as": "createdBy"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$createdBy"
+    }
+  },
+  {
+    "$lookup": {
+      "from": "users",
+      "localField": "updatedBy",
+      "foreignField": "_id",
+      "as": "updatedBy"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$updatedBy"
+    }
+  },
+  {
+    "$lookup": {
+      "from": "usage",
+      "pipeline": [
+        {
+          "$match": {
+            "$expr": {
+              "$eq": ["$status", true]
+            }
+          }
+        }
+      ],
+      "as": "creditUsage"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$creditUsage"
+    }
+  },
+  {
+    "$group": {
+      "_id": {
+        "_id": "$_id._id"
+      },
+      "firstName": {
+        "$first": "$firstName"
+      },
+      "lastName": {
+        "$first": "$lastName"
+      },
+      "username": {
+        "$first": "$username"
+      },
+      "email": {
+        "$first": "$email"
+      },
+      "password": {
+        "$first": "$password"
+      },
+      "image": {
+        "$first": "$image"
+      },
+      "prefix": {
+        "$first": "$prefix"
+      },
+      "phone": {
+        "$first": "$phone"
+      },
+      "isOrganizationOwner": {
+        "$first": "$isOrganizationOwner"
+      },
+      "isAssociationOwner": {
+        "$first": "$isAssociationOwner"
+      },
+      "organizationId": {
+        "$first": "$organizationId"
+      },
+      "groupId": {
+        "$first": "$groupId"
+      },
+      "createdBy": {
+        "$first": "$createdBy"
+      },
+      "updatedBy": {
+        "$first": "$updatedBy"
+      },
+      "createdAt": {
+        "$first": "$createdAt"
+      },
+      "updatedAt": {
+        "$first": "$updatedAt"
+      },
+      "group": {
+        "$first": "$group"
+      },
+      "organization": {
+        "$first": "$organization"
+      },
+      "groupPermissions": {
+        "$addToSet": "$group.permissions"
+      },
+      "creditUsage": {
+        "$first": "$creditUsage"
+      }
+    }
+  },
+  {
+    "$project": {
+      "_id": "$_id._id",
+      "firstName": "$firstName",
+      "lastName": "$lastName",
+      "username": "$username",
+      "email": "$email",
+      "password": "$password",
+      "image": "$image",
+      "prefix": "$prefix",
+      "phone": "$phone",
+      "isOrganizationOwner": "$isOrganizationOwner",
+      "isAssociationOwner": "$isAssociationOwner",
+      "organizationId": "$organizationId",
+      "groupId": "$groupId",
+      "createdBy": "$createdBy",
+      "updatedBy": "$updatedBy",
+      "createdAt": "$createdAt",
+      "updatedAt": "$updatedAt",
+      "organization": "$organization",
+      "creditUsage": "$creditUsage",
+      "group": {
+        "_id": "$group._id",
+        "name": "$group.name",
+        "slug": "$group.slug",
+        "description": "$group.description",
+        "organizationId": "$group.organizationId",
+        "roleId": "$group.roleId",
+        "status": "$group.status",
+        "createdBy": "$group.createdBy",
+        "updatedBy": "$group.updatedBy",
+        "createdAt": "$group.createdAt",
+        "updatedAt": "$group.updatedAt",
+        "permissions": "$groupPermissions"
+      }
+    }
+  }
+]

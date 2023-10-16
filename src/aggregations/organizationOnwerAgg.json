@@ -1,0 +1,59 @@
+[
+  {
+    "$lookup": {
+      "from": "organizations",
+      "localField": "_id",
+      "foreignField": "ownerId",
+      "as": "organization"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$organization"
+    }
+  },
+  {
+    "$lookup": {
+      "from": "twilioNumbers",
+      "let": {
+        "orgId": "$organizationId"
+      },
+      "pipeline": [
+        {
+          "$match": {
+            "$expr": {
+              "$eq": ["$organizationId", "$$orgId"]
+            },
+            "status": "active"
+          }
+        }
+      ],
+      "as": "number"
+    }
+  },
+  {
+    "$addFields": {
+      "assignedNumberCount": {
+        "$size": "$number"
+      }
+    }
+  },
+  {
+    "$match": {
+      "assignedNumberCount": {
+        "$eq": 0
+      }
+    }
+  },
+  {
+    "$project": {
+      "_id": "$_id",
+      "firstName": "$firstName",
+      "lastName": "$lastName",
+      "email": "$email",
+      "organizationId": "$organizationId",
+      "organizationName": "$organization.name",
+      "organizationSlug": "$organization.slug"
+    }
+  }
+]

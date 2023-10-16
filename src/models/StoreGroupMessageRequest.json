@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Store Group Message Request Schema",
+    "type": "object",
+    "required": [
+        "groupId"
+    ],
+    "properties": {
+        "groupName": {
+            "type": "string"
+        }
+    }
+}

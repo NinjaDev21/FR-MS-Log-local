@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Store Segment Request Schema",
+    "type": "object",
+    "required": [
+        "segmentName"
+    ],
+    "properties": {
+        "segmentName": {
+            "type": "string"
+        }
+    }
+}
