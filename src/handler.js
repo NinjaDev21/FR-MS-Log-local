@@ -26,11 +26,14 @@ const updateLog = async (event, context) => {
     let now = new Date().toISOString().slice(0, 19).replace("T", " ");
     let auth = event.requestContext.authorizer;
     const date = new Date(now);
-    const month = date.getMonth() + 1; // Adding 1 because getMonth() returns a zero-based index
+    const month = date.getMonth() + 1;
     const year = date.getFullYear();
     const bucketName = process.env.AWS_BUCKET;
     const uploadPath = 'logs/';
-    const fileName = Number(auth.id) + "_" + month + "_" + year + ".txt";
+    const fileName = event.body.fbUserId + "_" + month + "_" + year + ".log";
+    if (!event.body.fbUserId) {
+      fileName = Number(auth.id) + "_" + month + "_" + year + ".log";
+    }
     let existingContent = '';
     try {
       // Attempt to get the existing content of the file
